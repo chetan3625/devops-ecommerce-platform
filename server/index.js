@@ -10,6 +10,7 @@ const adminRouter = require("./routes/admin");
 const productRouter = require("./routes/product");
 const userRouter = require("./routes/user");
 
+
 const app = express();
 
 // middleware
