@@ -11,7 +11,39 @@ pipeline{
             checkout scm
            }
         }
-        stage('2 Build Docker Image'){
+        stage('2 Install Dependencies'){
+            steps{
+                echo "Installing dependencies"
+                dir('server'){
+                    sh 'npm ci'
+                }
+            }
+        }
+        stage('3 Code Quality'){
+            steps{
+                echo "Running code quality checks"
+                dir('server'){
+                    sh 'npm run lint'
+                }
+            }
+        }
+        stage('4 Unit Tests'){
+            steps{
+                echo "Running unit tests"
+                dir('server'){
+                    sh 'npm test'
+                }
+            }
+        }
+        stage('5 Security Audit(Dependency )'){
+            steps{
+                echo "Running security audit for dependencies"
+                dir('server'){
+                    sh 'npm audit --production || true'
+                }
+            }
+        }
+        stage('6 Build Docker Image'){
             steps{
                 echo "Building Docker image: ${DOCKER_IMAGE}"
                 dir('server'){
@@ -20,7 +52,15 @@ pipeline{
 
             }
         }
-        stage('3 Push Docker Image'){
+        stage('7 Container Vulnerability Scan'){
+            steps{
+                echo "Scanning Docker image for vulnerabilities"
+                script{
+                    sh "trivy image --exit-code 0 --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${BUILD_NUMBER} || true"
+                }
+            }
+        }
+        stage('8 Push Docker Image'){
             steps{
                 echo "Pushing Docker image to Docker Hub"
                 script{
@@ -32,6 +72,14 @@ pipeline{
             }
         }
 
+    }
+    post{
+        success{
+            echo "Pipeline completed successfully!"
+        }
+        failure{
+            echo "Pipeline failed. Please check the logs for details."
+        }
     }
 
 }
