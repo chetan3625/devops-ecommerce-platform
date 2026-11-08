@@ -8,7 +8,14 @@ pipeline{
         stage('1 Checkout Code'){
            steps{
             echo "Checking out code from Git repository"
-            checkout scm
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: 'master']],
+                userRemoteConfigs:[[
+                    url:'https://github.com/chetan3625/devops-ecommerce-platform',
+                    credentialsId: 'github-ssh-credentials'
+                ]]
+            ])
            }
         }
         stage('2 Build Docker Image'){
