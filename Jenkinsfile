@@ -1,8 +1,8 @@
 pipeline{
     agent any
-    environment {
-        DOCKER_IMAGE = "my-ecommerce-app:${env.BUILD_NUMBER}"
-        CREDENTIALS_ID = "dockerhub-credentials"
+    environment { 
+    DOCKER_IMAGE = 'chetan3625/devops-backend' 
+    CREDENTIALS_ID = 'docker-hub-credentials'
     }
     stages {
         stage('1 Checkout Code'){
